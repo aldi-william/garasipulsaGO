@@ -1,0 +1,42 @@
+stages:
+  - build-docker:dev
+  - deploy-k8s:dev
+
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  KUBECONFIG: ./deploy/config
+
+build_image_dev:
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_REPOSITORY_DEV: sample
+  stage: build-docker:dev
+  script:
+    - cp $env .env
+    #- cat .env
+    - docker login --username=$REGISTRY_USER --password=$REGISTRY_PASSWORD $REGISTRY_HOST
+    #- docker pull $DOCKER_REPOSITORY_DEV:latest || true
+    - docker build -t $DOCKER_REPOSITORY_DEV:$CI_COMMIT_SHORT_SHA .
+    #- docker tag $DOCKER_REPOSITORY_DEV:$CI_COMMIT_SHORT_SHA
+    - docker push $DOCKER_REPOSITORY_DEV:$CI_COMMIT_SHORT_SHA
+    - echo "push image complete"
+  # only:
+  #   - feature/cicd
+  tags:
+    - ecs-runner
+
+deploy_k8s:
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: [""]
+  stage: deploy-k8s:dev
+  script:
+    - mkdir -p deploy
+    - echo $kube_config |base64 -d > $KUBECONFIG
+    - sed -i "s/IMAGE_TAG/$CI_COMMIT_SHORT_SHA/g" k8-deploy.yaml
+    - cat k8-deploy.yaml
+    - kubectl apply -f k8-deploy.yaml
+  tags:
+    - ecs-runner

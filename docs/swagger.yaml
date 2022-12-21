@@ -1,0 +1,119 @@
+basePath: /user
+definitions:
+  models.ResponseOnboarding:
+    properties:
+      user_id:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:7000
+info:
+  contact: {}
+  description: User API Documentation
+  title: User API
+  version: "1.0"
+paths:
+  /:
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ResponseOnboarding'
+              type: object
+        "400":
+          description: Bad Request
+      summary: Create User
+      tags:
+      - user
+  /get-articles:
+    get:
+      consumes:
+      - application/json
+      description: Get Article
+      parameters:
+      - description: Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ResponseOnboarding'
+              type: object
+        "400":
+          description: Bad Request
+      summary: Get Article
+      tags:
+      - user
+  /health-check:
+    get:
+      consumes:
+      - application/json
+      description: Status
+      parameters:
+      - description: Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ResponseOnboarding'
+              type: object
+        "400":
+          description: Bad Request
+      summary: Status
+      tags:
+      - user
+swagger: "2.0"

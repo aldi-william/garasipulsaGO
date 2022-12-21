@@ -1,0 +1,30 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+.env
+*_bin
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, speuserically when used with LiteIDE
+*.out
+
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+.idea
+.DS_Store
+.vscode
+vendor..***
+.env
+local.env
