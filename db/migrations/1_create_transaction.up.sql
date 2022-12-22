@@ -10,6 +10,7 @@ CREATE TABLE `transactions` (
   `buyer_sku_code` varchar(150) NOT NULL,
   `id_pelanggan` varchar(150),
   `total` bigint NOT NULL,
+  `kode_unik` tinyint NOT NULL,
   `created_at` timestamp,
   `updated_at` timestamp
 );

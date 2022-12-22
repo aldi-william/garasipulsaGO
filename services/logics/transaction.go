@@ -60,6 +60,7 @@ func (service *TransactionService) CreateTransaction(req models.Transaction) (*m
 	TransactionToDB.Status = "Tunggu"
 	TransactionToDB.Provider = req.Provider
 	TransactionToDB.Kode_Unik = rand_number
+	TransactionToDB.Total = req.Nominal + rand_number
 
 	// fetch user data
 	transData, err := service.transactionRepository.CreateTransaction(&TransactionToDB)

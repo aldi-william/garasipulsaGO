@@ -31,7 +31,7 @@ func baseRouter(c *controllerRoutes) {
 	payment := router.Group(PaymentRoute)
 	{
 		whitelist := make(map[string]bool)
-		whitelist["128.199.173.138"] = true
+		whitelist["128.199.173.138"] = false
 		payment.POST("/callback", middlewares.IPWhiteList(whitelist), c.paymentControllers.CallBackFromMoota)
 	}
 
