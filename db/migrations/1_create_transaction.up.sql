@@ -9,6 +9,7 @@ CREATE TABLE `transactions` (
   `invoice_number` varchar(50) NOT NULL,
   `buyer_sku_code` varchar(150) NOT NULL,
   `id_pelanggan` varchar(150),
+  `total` bigint NOT NULL,
   `created_at` timestamp,
   `updated_at` timestamp
 );

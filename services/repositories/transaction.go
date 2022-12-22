@@ -19,6 +19,7 @@ type ITransactionRepository interface {
 	CreateTransaction(req *entities.Transactions) (*entities.Transactions, error)
 	CreateTransactionPLN(req *entities.TransactionsPLN) (*entities.TransactionsPLN, error)
 	GetTransaction(req []entities.Transactions) ([]entities.Transactions, error)
+	GetTransactionByTotal(total int) (*entities.Transactions, error)
 }
 
 func InitTransactionRepository(connORM *gorm.DB, connDB *sql.DB) *TransactionRepository {
@@ -39,7 +40,8 @@ func InitTransactionRepository(connORM *gorm.DB, connDB *sql.DB) *TransactionRep
 func (transactionRepo *TransactionRepository) CreateTransaction(req *entities.Transactions) (*entities.Transactions, error) {
 	err := transactionRepo.connORM.Create(&req).Error
 	if err != nil {
-		logrus.Error("error [services][repositories][transaction][gorm create] ", err)
+		utils.PrintLog("error [services][repositories][transaction][gorm create Transaction] ", err)
+		logrus.Error("error [services][repositories][transaction][gorm create Transaction] ", err)
 		return nil, err
 	}
 	return req, nil
@@ -48,7 +50,8 @@ func (transactionRepo *TransactionRepository) CreateTransaction(req *entities.Tr
 func (transactionRepo *TransactionRepository) CreateTransactionPLN(req *entities.TransactionsPLN) (*entities.TransactionsPLN, error) {
 	err := transactionRepo.connORM.Create(&req).Error
 	if err != nil {
-		logrus.Error("error [services][repositories][transaction][gorm create] ", err)
+		utils.PrintLog("error [services][repositories][transaction][gorm create Transaction PLN] ", err)
+		logrus.Error("error [services][repositories][transaction][gorm create Transaction PLN] ", err)
 		return nil, err
 	}
 	return req, nil
@@ -57,8 +60,23 @@ func (transactionRepo *TransactionRepository) CreateTransactionPLN(req *entities
 func (transactionRepo *TransactionRepository) GetTransaction(req []entities.Transactions) ([]entities.Transactions, error) {
 	err := transactionRepo.connORM.Limit(10).Order("created_at desc").Find(&req).Error
 	if err != nil {
+		utils.PrintLog("error [services][repositories][transaction][gorm get] ", err)
 		logrus.Error("error [services][repositories][transaction][gorm get] ", err)
 		return nil, err
 	}
 	return req, nil
+}
+
+func (transactionRepo *TransactionRepository) GetTransactionByTotal(total int) (*entities.Transactions, error) {
+	var (
+		trans entities.Transactions
+	)
+	err := transactionRepo.connORM.Where("total = ?", total).First(&trans).Error
+	if err != nil {
+		utils.PrintLog("error [services][repositories][transaction][gorm get] ", err)
+		logrus.Error("error [services][repositories][transaction][gorm get] ", err)
+		return nil, err
+	}
+
+	return &trans, nil
 }

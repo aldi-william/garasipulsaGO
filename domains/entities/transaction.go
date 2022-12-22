@@ -14,6 +14,8 @@ type Transactions struct {
 	Status         string     `json:"status"`
 	Invoice_Number string     `json:"invoice_number"`
 	Buyer_Sku_Code string     `json:"buyer_sku_code"`
+	Total          int        `json:"total"`
+	Kode_Unik      int        `json:"kode_unik"`
 }
 
 type TransactionsPLN struct {

@@ -3,6 +3,7 @@ package logics
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
 	"user/constants"
@@ -17,8 +18,8 @@ import (
 )
 
 type ITransactionService interface {
-	CreateTransaction(req models.Transaction) (*models.Transaction, error)
-	CreateTransactionPLN(req models.TransactionPLN) (*models.TransactionPLN, error)
+	CreateTransaction(req models.Transaction) (*models.ResultToBuyer, error)
+	CreateTransactionPLN(req models.TransactionPLN) (*models.ResultToBuyer, error)
 	GetWebsocket(ctx *gin.Context)
 	GetTransaction(req []entities.Transactions) (*[]models.Transaction, error)
 }
@@ -40,17 +41,14 @@ func InitTransactionService(transactionRepo repositories.ITransactionRepository)
 	return &service
 }
 
-func (service *TransactionService) CreateTransaction(req models.Transaction) (*models.Transaction, error) {
-	var (
-		trans models.Transaction
-	)
+func (service *TransactionService) CreateTransaction(req models.Transaction) (*models.ResultToBuyer, error) {
 
 	invoice_number := "INV"
 	date := time.Now()
 	timeFormat := date.Format("02/01/2006")
 	rand_character := utils.RandomString(4)
 	Invoice := fmt.Sprintf("%s-%s-%s", invoice_number, timeFormat, rand_character)
-
+	rand_number := rand.Intn(99)
 	TransactionToDB := entities.Transactions{}
 
 	TransactionToDB.JenisLayanan = req.JenisLayanan
@@ -61,23 +59,26 @@ func (service *TransactionService) CreateTransaction(req models.Transaction) (*m
 	TransactionToDB.Nomor_Hp = req.Nomor_Hp
 	TransactionToDB.Status = "Tunggu"
 	TransactionToDB.Provider = req.Provider
+	TransactionToDB.Kode_Unik = rand_number
 
 	// fetch user data
-	transactionData, err := service.transactionRepository.CreateTransaction(&TransactionToDB)
+	transData, err := service.transactionRepository.CreateTransaction(&TransactionToDB)
 	if err != nil {
 		utils.PrintLog("error [services][logics][transaction][CreateTransaction] ", err)
 		logrus.Error("error [services][logics][transaction][CreateTransaction] ", err)
 		return nil, errors.New(constants.TransactionNotCreatedErr)
 	}
-	_ = utils.AutoMap(transactionData, &trans)
 
-	return &trans, nil
+	ResultToBuyer := models.ResultToBuyer{}
+
+	ResultToBuyer.Invoice_Number = transData.Invoice_Number
+	ResultToBuyer.Unique_Code = transData.Kode_Unik
+	ResultToBuyer.Total = transData.Total
+
+	return &ResultToBuyer, nil
 }
 
-func (service *TransactionService) CreateTransactionPLN(req models.TransactionPLN) (*models.TransactionPLN, error) {
-	var (
-		trans models.TransactionPLN
-	)
+func (service *TransactionService) CreateTransactionPLN(req models.TransactionPLN) (*models.ResultToBuyer, error) {
 
 	invoice_number := "INV"
 	date := time.Now()
@@ -98,15 +99,20 @@ func (service *TransactionService) CreateTransactionPLN(req models.TransactionPL
 	TransactionToDB.Id_Pelanggan = req.ID_Pelanggan
 
 	// fetch user data
-	transactionData, err := service.transactionRepository.CreateTransactionPLN(&TransactionToDB)
+	transData, err := service.transactionRepository.CreateTransactionPLN(&TransactionToDB)
 	if err != nil {
 		utils.PrintLog("error [services][logics][transaction][CreateTransaction] ", err)
 		logrus.Error("error [services][logics][transaction][CreateTransaction] ", err)
 		return nil, errors.New(constants.TransactionNotCreatedErr)
 	}
-	_ = utils.AutoMap(transactionData, &trans)
 
-	return &trans, nil
+	ResultToBuyer := models.ResultToBuyer{}
+
+	ResultToBuyer.Invoice_Number = transData.Invoice_Number
+	ResultToBuyer.Unique_Code = transData.Kode_Unik
+	ResultToBuyer.Total = transData.Total
+
+	return &ResultToBuyer, nil
 }
 
 func (service *TransactionService) GetWebsocket(ctx *gin.Context) {

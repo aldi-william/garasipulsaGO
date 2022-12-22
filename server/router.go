@@ -21,6 +21,7 @@ type controllerRoutes struct {
 	healthControllers      *controllers.HealthController
 	userControllers        *controllers.UserController
 	transactionControllers *controllers.TransactionController
+	paymentControllers     *controllers.PaymentController
 }
 
 // RegisterRoutes is used to register url routes API
@@ -30,6 +31,7 @@ func initControllers() *controllerRoutes {
 		healthControllers:      &controllers.HealthController{},
 		userControllers:        controllers.InitUserController(nil),
 		transactionControllers: controllers.InitTransactionController(nil),
+		paymentControllers:     controllers.InitPaymentController(nil),
 	}
 }
 
