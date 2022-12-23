@@ -20,6 +20,7 @@ type ITransactionRepository interface {
 	CreateTransactionPLN(req *entities.TransactionsPLN) (*entities.TransactionsPLN, error)
 	GetTransaction(req []entities.Transactions) ([]entities.Transactions, error)
 	GetTransactionByTotal(total int) (*entities.Transactions, error)
+	GetTransactionByStatusAndToday(status string, date string) (*entities.Transactions, error)
 }
 
 func InitTransactionRepository(connORM *gorm.DB, connDB *sql.DB) *TransactionRepository {
@@ -75,6 +76,20 @@ func (transactionRepo *TransactionRepository) GetTransactionByTotal(total int) (
 	if err != nil {
 		utils.PrintLog("error [services][repositories][transaction][gorm get] ", err)
 		logrus.Error("error [services][repositories][transaction][gorm get] ", err)
+		return nil, err
+	}
+
+	return &trans, nil
+}
+
+func (transactionRepo *TransactionRepository) GetTransactionByStatusAndToday(status string, date string) (*entities.Transactions, error) {
+	var (
+		trans entities.Transactions
+	)
+	err := transactionRepo.connORM.Where("status = ? AND created_at > ?", status, date).First(&trans).Error
+	if err != nil {
+		utils.PrintLog("error [services][repositories][transaction][gorm get GET TransactionByStatusAndToday] ", err)
+		logrus.Error("error [services][repositories][transaction][gorm get GET TransactionByStatusAndToday] ", err)
 		return nil, err
 	}
 

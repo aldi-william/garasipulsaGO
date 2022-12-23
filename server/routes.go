@@ -32,6 +32,8 @@ func baseRouter(c *controllerRoutes) {
 	{
 		whitelist := make(map[string]bool)
 		whitelist["128.199.173.138"] = true
+		whitelist["202.80.217.104"] = true
+
 		payment.POST("/callback", c.paymentControllers.CallBackFromMoota)
 	}
 
