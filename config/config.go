@@ -40,6 +40,8 @@ func initConfig() {
 		logrus.Fatal(err)
 	}
 
+	//setup redis
+	err = connection.InitRedis()
 	// setup connection http
 	connection.InitClient()
 

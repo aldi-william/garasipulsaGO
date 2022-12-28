@@ -4,6 +4,7 @@ type MootaCallback struct {
 	Amount           int    `json:"amount"`
 	Type_Transaction string `json:"type"`
 	Mutation_ID      string `json:"mutation_id"`
+	Token            string `json:"token"`
 }
 
 type ResultToBuyer struct {

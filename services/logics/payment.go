@@ -3,12 +3,14 @@ package logics
 import (
 	"crypto/md5"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+	"user/domains/entities"
 	"user/domains/models"
 	"user/services/repositories"
 	"user/utils"
@@ -18,6 +20,7 @@ import (
 
 type IPaymentService interface {
 	CallBackFromMoota(req []models.MootaCallback) (*models.ResultDigiFlazzData, error)
+	CallBackFromDigiflazz(req models.DigiFlazzData) (*models.ResultDigiFlazzData, error)
 }
 
 type PaymentService struct {
@@ -45,11 +48,18 @@ func InitPaymentService(paymentRepo repositories.IPaymentRepository, transaction
 
 func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*models.ResultDigiFlazzData, error) {
 
+	for _, data := range req {
+		if data.Token != os.Getenv("SECRET_TOKEN") {
+			return nil, errors.New("permission denied")
+		}
+	}
+
 	var (
 		amount           = []int{}
 		res              = models.ResultDigiFlazzData{}
 		MODE_DEVELOPMENT = os.Getenv("MODE_DEVELOPMENT")
 		Testing          bool
+		transaction      = entities.Transactions{}
 	)
 	// menentukan mode development atau production
 	if MODE_DEVELOPMENT == "PRODUCTION" {
@@ -69,6 +79,7 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 	if err != nil {
 		utils.PrintLog("error [services][logics][payment][gorm get transactional by Status] ", err)
 		logrus.Error("error [services][logics][payment][gorm get transactional by Status] ", err)
+		return nil, errors.New("data tidak ditemukan")
 	}
 
 	username := os.Getenv("USERNAME_BELI_PULSA")
@@ -85,6 +96,7 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 			if err != nil {
 				utils.PrintLog("error [services][logics][payment][gorm get transactional by total] ", err)
 				logrus.Error("error [services][logics][payment][gorm get transactional by total] ", err)
+				return nil, errors.New("data tidak ditemukan")
 			}
 			jsonData.Customer_NO = strconv.Itoa(getData.Nomor_Hp)
 			jsonData.Buyer_SKU_Code = getData.Buyer_Sku_Code
@@ -95,6 +107,7 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 			jsonData.Sign = pass
 			jsonData.Testing = Testing
 			result, err := utils.CallAPI(http.MethodPost, os.Getenv("URL_BELI_PULSA"), &jsonData, nil, nil)
+
 			if err != nil {
 				utils.PrintLog("error [services][logics][payment][CallAPI] ", err)
 				logrus.Error("error [services][logics][payment][CallAPI] ", err)
@@ -111,10 +124,62 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 				logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
 			}
 
+			if res.Data.Response_Code == "00" {
+				transaction.Status = "Sukses"
+			} else if res.Data.Response_Code == "01" {
+				transaction.Status = "Gagal"
+			} else if res.Data.Response_Code == "02" {
+				transaction.Status = "Gagal"
+			} else if res.Data.Response_Code == "03" {
+				transaction.Status = "Proses"
+			} else if res.Data.Response_Code == "99" {
+				transaction.Status = "Proses"
+			} else {
+				transaction.Status = "Refund"
+			}
+
+			transaction.Invoice_Number = res.Data.Ref_ID
+
+			err = service.transactionRepository.UpdateTransactionByInvoiceNumber(&transaction)
+			if err != nil {
+				utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+				logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+			}
 		} else {
 			fmt.Println("Tidak Ada Transaksi")
 		}
 	}
 
 	return &res, nil
+}
+
+func (service *PaymentService) CallBackFromDigiflazz(req models.DigiFlazzData) (*models.ResultDigiFlazzData, error) {
+	var (
+		transaction = entities.Transactions{}
+	)
+
+	if req.Data.Response_Code == "00" {
+		transaction.Status = "Sukses"
+	} else if req.Data.Response_Code == "01" {
+		transaction.Status = "Gagal"
+	} else if req.Data.Response_Code == "02" {
+		transaction.Status = "Gagal"
+	} else if req.Data.Response_Code == "03" {
+		transaction.Status = "Proses"
+	} else if req.Data.Response_Code == "99" {
+		transaction.Status = "Proses"
+	} else {
+		transaction.Status = "Refund"
+	}
+
+	transaction.Invoice_Number = req.Data.Ref_ID
+
+	err := service.transactionRepository.UpdateTransactionByInvoiceNumber(&transaction)
+	if err != nil {
+		utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+		logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+		return nil, errors.New("gagal update transaksi")
+	}
+
+	return nil, nil
 }

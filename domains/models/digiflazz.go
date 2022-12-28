@@ -29,3 +29,12 @@ type ResultDigiFlazz struct {
 	Selling_Price    int         `json:"selling_price"`
 	Desc             interface{} `json:"desc"`
 }
+
+type DigiFlazz struct {
+	Ref_ID        string `json:"ref_id"`
+	Response_Code string `json:"rc"`
+}
+
+type DigiFlazzData struct {
+	Data DigiFlazz `json:"data"`
+}

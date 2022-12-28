@@ -44,3 +44,23 @@ func (paymentController *PaymentController) CallBackFromMoota(c *gin.Context) {
 		response.Success(c)
 	}
 }
+
+func (paymentController *PaymentController) CallBackFromDigiFlazz(c *gin.Context) {
+	var req models.DigiFlazzData
+	err := c.BindJSON(&req)
+	if err != nil {
+		utils.PrintLog("error [controllers][CallBackFromMoota][BindJSON]", err)
+		logrus.Error("error [controllers][CallBackFromMoota][BindJSON] ", err)
+	}
+
+	res, err := paymentController.paymentLogic.CallBackFromDigiflazz(req)
+	if err != nil {
+		utils.PrintLog("error [controllers][CallBackFromMoota][paymentLogic] ", err)
+		logrus.Error("error [controllers][CallBackFromMoota][paymentLogic] ", err)
+		response := response.Response{}
+		response.Error(c, err.Error())
+	} else {
+		response := response.Response{Data: res}
+		response.Success(c)
+	}
+}

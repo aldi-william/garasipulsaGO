@@ -17,6 +17,10 @@ const (
 	Sec18000 = 18000
 	Sec36000 = 36000
 	Sec86400 = 86400
+
+	// Redis
+	RedisPrefix  = "user"
+	RedisKeyUser = "users"
 )
 
 const (

@@ -22,7 +22,7 @@ func AllowCors(environment string) {
 
 	config.AllowWildcard = true
 	config.AllowOrigins = whitelists
-	config.AllowHeaders = append(config.AllowHeaders, "Authorization", "Accept-Encoding")
+	config.AllowHeaders = append(config.AllowHeaders, "Authorization", "Accept-Encoding", "X-Digiflazz-Event", "X-Digiflazz-Delivery", "X-Hub-Signature", "Content-Type")
 
 	router.Use(cors.New(config))
 }

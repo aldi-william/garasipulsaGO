@@ -16,11 +16,13 @@ type TransactionRepository struct {
 }
 
 type ITransactionRepository interface {
+	// CreateTransaction(req *entities.Transactions) (*entities.Transactions, error)
 	CreateTransaction(req *entities.Transactions) (*entities.Transactions, error)
-	CreateTransactionPLN(req *entities.TransactionsPLN) (*entities.TransactionsPLN, error)
 	GetTransaction(req []entities.Transactions) ([]entities.Transactions, error)
+	GetTransactionByInvoice(invoice string) (*entities.Transactions, error)
 	GetTransactionByTotal(total int) (*entities.Transactions, error)
 	GetTransactionByStatusAndToday(status string, date string) (*entities.Transactions, error)
+	UpdateTransactionByInvoiceNumber(trans *entities.Transactions) error
 }
 
 func InitTransactionRepository(connORM *gorm.DB, connDB *sql.DB) *TransactionRepository {
@@ -41,16 +43,6 @@ func InitTransactionRepository(connORM *gorm.DB, connDB *sql.DB) *TransactionRep
 func (transactionRepo *TransactionRepository) CreateTransaction(req *entities.Transactions) (*entities.Transactions, error) {
 	err := transactionRepo.connORM.Create(&req).Error
 	if err != nil {
-		utils.PrintLog("error [services][repositories][transaction][gorm create Transaction] ", err)
-		logrus.Error("error [services][repositories][transaction][gorm create Transaction] ", err)
-		return nil, err
-	}
-	return req, nil
-}
-
-func (transactionRepo *TransactionRepository) CreateTransactionPLN(req *entities.TransactionsPLN) (*entities.TransactionsPLN, error) {
-	err := transactionRepo.connORM.Create(&req).Error
-	if err != nil {
 		utils.PrintLog("error [services][repositories][transaction][gorm create Transaction PLN] ", err)
 		logrus.Error("error [services][repositories][transaction][gorm create Transaction PLN] ", err)
 		return nil, err
@@ -66,6 +58,20 @@ func (transactionRepo *TransactionRepository) GetTransaction(req []entities.Tran
 		return nil, err
 	}
 	return req, nil
+}
+
+func (transactionRepo *TransactionRepository) GetTransactionByInvoice(invoice string) (*entities.Transactions, error) {
+	var (
+		trans entities.Transactions
+	)
+	err := transactionRepo.connORM.Where("invoice_number = ?", invoice).First(&trans).Error
+	if err != nil {
+		utils.PrintLog("error [services][repositories][transaction][gorm get] ", err)
+		logrus.Error("error [services][repositories][transaction][gorm get] ", err)
+		return nil, err
+	}
+
+	return &trans, nil
 }
 
 func (transactionRepo *TransactionRepository) GetTransactionByTotal(total int) (*entities.Transactions, error) {
@@ -94,4 +100,18 @@ func (transactionRepo *TransactionRepository) GetTransactionByStatusAndToday(sta
 	}
 
 	return &trans, nil
+}
+
+func (transactionRepo *TransactionRepository) UpdateTransactionByInvoiceNumber(trans *entities.Transactions) error {
+	var (
+		transaction entities.Transactions
+	)
+
+	err := transactionRepo.connORM.Model(&transaction).Where("invoice_number = ?", trans.Invoice_Number).Update("Status", trans.Status).Error
+	if err != nil {
+		utils.PrintLog("error [services][repositories][transaction][gorm Update UpdateTransactionByInvoiceNumber] ", err)
+		logrus.Error("error [services][repositories][transaction][gorm Update UpdateTransactionByInvoiceNumber] ", err)
+		return err
+	}
+	return nil
 }

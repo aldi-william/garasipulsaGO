@@ -11,6 +11,7 @@ CREATE TABLE `transactions` (
   `id_pelanggan` varchar(150),
   `total` bigint NOT NULL,
   `kode_unik` tinyint NOT NULL,
+  `status_pengisian` varchar(50),
   `created_at` timestamp,
   `updated_at` timestamp
 );
