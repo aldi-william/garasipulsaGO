@@ -41,11 +41,11 @@ func baseRouter(c *controllerRoutes) {
 		whitelistfromMoota := make(map[string]bool)
 		whitelistfromDigiflazz := make(map[string]bool)
 		whitelistfromMoota["128.199.173.138"] = true
-		whitelistfromMoota["202.80.219.52"] = true
-		whitelistfromMoota["::1"] = true
+		whitelistfromMoota["202.80.219.52"] = false
+		whitelistfromMoota["::1"] = false
 		whitelistfromDigiflazz["52.74.250.133"] = true
-		whitelistfromDigiflazz["202.80.219.52"] = true
-		whitelistfromDigiflazz["::1"] = true
+		whitelistfromDigiflazz["202.80.219.52"] = false
+		whitelistfromDigiflazz["::1"] = false
 
 		payment.POST("/callback", middlewares.IPWhiteList(whitelistfromMoota), c.paymentControllers.CallBackFromMoota)
 		payment.POST("/callbackfromdigiflazz", middlewares.IPWhiteList(whitelistfromDigiflazz), middlewares.X_HUB_Signature(), c.paymentControllers.CallBackFromDigiFlazz)
