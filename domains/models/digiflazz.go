@@ -33,6 +33,7 @@ type ResultDigiFlazz struct {
 type DigiFlazz struct {
 	Ref_ID        string `json:"ref_id"`
 	Response_Code string `json:"rc"`
+	Serial_Number string `json:"sn"`
 }
 
 type DigiFlazzData struct {

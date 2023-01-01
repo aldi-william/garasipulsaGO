@@ -25,6 +25,16 @@ func PrintLog(location string, err interface{}) {
 	}
 }
 
+func PrintLogSukses(location string, err interface{}) {
+	logger := logrus.New()
+	file, _ := os.OpenFile("callback.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	if err != nil {
+		logger.SetOutput(file)
+		msg := fmt.Sprintf("%s : %v", location, err)
+		logger.Info(msg)
+	}
+}
+
 func IsNil(val interface{}) bool {
 	if val == nil {
 		return true

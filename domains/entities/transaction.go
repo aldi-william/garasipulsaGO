@@ -10,7 +10,7 @@ type Transactions struct {
 	JenisLayanan     string     `json:"jenis_layanan"`
 	Provider         string     `json:"provider"`
 	Nominal          int        `json:"nominal"`
-	Nomor_Hp         int        `json:"nomor_hp"`
+	Nomor_Hp         string     `json:"nomor_hp"`
 	Status           string     `json:"status"`
 	Invoice_Number   string     `json:"invoice_number"`
 	Buyer_Sku_Code   string     `json:"buyer_sku_code"`
@@ -18,4 +18,5 @@ type Transactions struct {
 	Status_Pengisian string     `json:"status_pengisian"`
 	Kode_Unik        int        `json:"kode_unik"`
 	Id_Pelanggan     string     `json:"id_pelanggan"`
+	Serial_Number    string     `json:"sn"`
 }

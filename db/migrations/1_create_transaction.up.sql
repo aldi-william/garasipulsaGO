@@ -12,6 +12,7 @@ CREATE TABLE `transactions` (
   `total` bigint NOT NULL,
   `kode_unik` tinyint NOT NULL,
   `status_pengisian` varchar(50),
+  `serial_number` varchar(150),
   `created_at` timestamp,
   `updated_at` timestamp
 );

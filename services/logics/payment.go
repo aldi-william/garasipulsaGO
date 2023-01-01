@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 	"user/domains/entities"
 	"user/domains/models"
@@ -89,68 +88,81 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 	jsonData.Command = os.Getenv("CMD_BELI_PULSA")
 	jsonData.Username = os.Getenv("USERNAME_BELI_PULSA")
 
-	for _, data := range amount {
-		if getDataAllStatusTungguAndToday.Total == data {
-			utils.PrintLog("success [services][logics][payment][getDataAllStatusTungguAndToday == Amount of all Mutasi] ", data)
-			getData, err := service.transactionRepository.GetTransactionByTotal(data)
-			if err != nil {
-				utils.PrintLog("error [services][logics][payment][gorm get transactional by total] ", err)
-				logrus.Error("error [services][logics][payment][gorm get transactional by total] ", err)
-				return nil, errors.New("data tidak ditemukan")
-			}
-			jsonData.Customer_NO = strconv.Itoa(getData.Nomor_Hp)
-			jsonData.Buyer_SKU_Code = getData.Buyer_Sku_Code
-			jsonData.Ref_ID = getData.Invoice_Number
-			ref_id := getData.Invoice_Number
-			sign := md5.Sum([]byte(username + apikey + ref_id))
-			pass := fmt.Sprintf("%x", sign)
-			jsonData.Sign = pass
-			jsonData.Testing = Testing
-			result, err := utils.CallAPI(http.MethodPost, os.Getenv("URL_BELI_PULSA"), &jsonData, nil, nil)
+	for _, getData := range *getDataAllStatusTungguAndToday {
+		for _, getDataAmount := range amount {
+			if getData.Total == getDataAmount {
+				utils.PrintLog("success [services][logics][payment][getDataAllStatusTungguAndToday == Amount of all Mutasi] ", getDataAmount)
+				getData, err := service.transactionRepository.GetTransactionByTotal(getDataAmount)
+				if err != nil {
+					utils.PrintLog("error [services][logics][payment][gorm get transactional by total] ", err)
+					logrus.Error("error [services][logics][payment][gorm get transactional by total] ", err)
+					return nil, errors.New("data tidak ditemukan")
+				}
+				if getData.Id_Pelanggan != "" {
+					jsonData.Customer_NO = getData.Nomor_Hp
+				} else {
+					jsonData.Customer_NO = getData.Id_Pelanggan
+				}
 
-			if err != nil {
-				utils.PrintLog("error [services][logics][payment][CallAPI] ", err)
-				logrus.Error("error [services][logics][payment][CallAPI] ", err)
-			}
-			defer result.Body.Close()
-			bytes, err := io.ReadAll(result.Body)
-			if err != nil {
-				utils.PrintLog("error [services][logics][payment][ReadAll Looping CallAPI] ", err)
-				logrus.Error("error [services][logics][payment][ReadAll Looping CallAPI] ", err)
-			}
-			err = json.Unmarshal(bytes, &res)
-			if err != nil {
-				utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
-				logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
-			}
+				jsonData.Buyer_SKU_Code = getData.Buyer_Sku_Code
+				jsonData.Ref_ID = getData.Invoice_Number
+				ref_id := getData.Invoice_Number
+				sign := md5.Sum([]byte(username + apikey + ref_id))
+				pass := fmt.Sprintf("%x", sign)
+				jsonData.Sign = pass
+				jsonData.Testing = Testing
 
-			if res.Data.Response_Code == "00" {
-				transaction.Status = "Sukses"
-			} else if res.Data.Response_Code == "01" {
-				transaction.Status = "Gagal"
-			} else if res.Data.Response_Code == "02" {
-				transaction.Status = "Gagal"
-			} else if res.Data.Response_Code == "03" {
-				transaction.Status = "Proses"
-			} else if res.Data.Response_Code == "99" {
-				transaction.Status = "Proses"
+				fmt.Println(jsonData)
+				result, err := utils.CallAPI(http.MethodPost, os.Getenv("URL_BELI_PULSA"), &jsonData, nil, nil)
+
+				if err != nil {
+					utils.PrintLog("error [services][logics][payment][CallAPI] ", err)
+					logrus.Error("error [services][logics][payment][CallAPI] ", err)
+				}
+				fmt.Println(result.Body)
+				defer result.Body.Close()
+				bytes, err := io.ReadAll(result.Body)
+				if err != nil {
+					utils.PrintLog("error [services][logics][payment][ReadAll Looping CallAPI] ", err)
+					logrus.Error("error [services][logics][payment][ReadAll Looping CallAPI] ", err)
+				}
+				err = json.Unmarshal(bytes, &res)
+				if err != nil {
+					utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+					logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+				}
+
+				if res.Data.Response_Code == "00" {
+					transaction.Status = "Sukses"
+					transaction.Serial_Number = res.Data.Serial_Number
+				} else if res.Data.Response_Code == "01" {
+					transaction.Status = "Gagal"
+				} else if res.Data.Response_Code == "02" {
+					transaction.Status = "Gagal"
+				} else if res.Data.Response_Code == "03" {
+					transaction.Status = "Proses"
+				} else if res.Data.Response_Code == "99" {
+					transaction.Status = "Proses"
+				} else {
+					transaction.Status = "Refund"
+				}
+
+				transaction.Invoice_Number = res.Data.Ref_ID
+
+				err = service.transactionRepository.UpdateTransactionByInvoiceNumber(&transaction)
+				if err != nil {
+					utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+					logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
+				}
 			} else {
-				transaction.Status = "Refund"
+				fmt.Println("Tidak Ada Transaksi")
 			}
-
-			transaction.Invoice_Number = res.Data.Ref_ID
-
-			err = service.transactionRepository.UpdateTransactionByInvoiceNumber(&transaction)
-			if err != nil {
-				utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
-				logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
-			}
-		} else {
-			fmt.Println("Tidak Ada Transaksi")
 		}
+
 	}
 
-	return &res, nil
+	utils.PrintLogSukses("SUCCESS [services][logics][payment][CALLAPI] ", res)
+	return nil, nil
 }
 
 func (service *PaymentService) CallBackFromDigiflazz(req models.DigiFlazzData) (*models.ResultDigiFlazzData, error) {
@@ -160,6 +172,7 @@ func (service *PaymentService) CallBackFromDigiflazz(req models.DigiFlazzData) (
 
 	if req.Data.Response_Code == "00" {
 		transaction.Status = "Sukses"
+		transaction.Serial_Number = req.Data.Serial_Number
 	} else if req.Data.Response_Code == "01" {
 		transaction.Status = "Gagal"
 	} else if req.Data.Response_Code == "02" {
@@ -180,6 +193,6 @@ func (service *PaymentService) CallBackFromDigiflazz(req models.DigiFlazzData) (
 		logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
 		return nil, errors.New("gagal update transaksi")
 	}
-
+	utils.PrintLogSukses("SUCCESS [services][logics][payment][CALLBACK FROM Digiflazz] ", transaction)
 	return nil, nil
 }

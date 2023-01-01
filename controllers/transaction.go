@@ -70,3 +70,18 @@ func (transactionController TransactionController) GetTransaction(c *gin.Context
 		response.Success(c)
 	}
 }
+
+func (transactionController TransactionController) GetTransactionByID(c *gin.Context) {
+	req := c.Param("id")
+
+	res, err := transactionController.transactionLogic.GetTransactionByID(req)
+	if err != nil {
+		utils.PrintLog("error [controllers][transaction][GetTransaction] ", err)
+		logrus.Error("error [controllers][transaction][GetTransaction] ", err)
+		response := response.Response{}
+		response.Error(c, err.Error())
+	} else {
+		response := response.Response{Data: res}
+		response.Success(c)
+	}
+}

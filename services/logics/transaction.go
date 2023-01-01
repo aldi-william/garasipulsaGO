@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 	"user/constants"
 	"user/domains/entities"
@@ -24,6 +26,7 @@ type ITransactionService interface {
 	GetWebsocket(ctx *gin.Context)
 	GetMelody(ctx *gin.Context)
 	GetTransaction(req []entities.Transactions) (*[]models.Transaction, error)
+	GetTransactionByID(req string) (*models.Transaction, error)
 }
 
 type TransactionService struct {
@@ -62,6 +65,7 @@ func (service *TransactionService) CreateTransaction(req models.Transaction) (*m
 	TransactionToDB.Pembayaran = req.Pembayaran
 	TransactionToDB.Nomor_Hp = req.Nomor_Hp
 	TransactionToDB.Status = "Tunggu"
+	TransactionToDB.Status_Pengisian = "Tunggu"
 	TransactionToDB.Provider = req.Provider
 	TransactionToDB.Id_Pelanggan = req.ID_Pelanggan
 	TransactionToDB.Kode_Unik = rand_number
@@ -75,8 +79,11 @@ func (service *TransactionService) CreateTransaction(req models.Transaction) (*m
 		return nil, errors.New(constants.TransactionNotCreatedErr)
 	}
 
-	ResultToBuyer := models.ResultToBuyer{}
+	expiredTime := transDataFirst.CreatedAt.Add(15 * time.Minute)
 
+	go service.CheckExpiredStatus(expiredTime, transDataFirst)
+
+	ResultToBuyer := models.ResultToBuyer{}
 	ResultToBuyer.Invoice_Number = transDataFirst.Invoice_Number
 	ResultToBuyer.Unique_Code = transDataFirst.Kode_Unik
 	ResultToBuyer.Total = transDataFirst.Total
@@ -147,20 +154,67 @@ func (service *TransactionService) GetTransaction(req []entities.Transactions) (
 	}
 
 	for _, data := range transactionData {
+		original := data.Nomor_Hp
+		replacement := "XXX"
+		startIndex := len(original) - 3
+		endIndex := len(original)
+		replaced := strings.Replace(original, original[startIndex:endIndex], replacement, 1)
+
+		transaction.ID = int(data.ID)
 		transaction.Status = data.Status
 		transaction.JenisLayanan = data.JenisLayanan
 		transaction.Nominal = data.Nominal
-		transaction.Nomor_Hp = data.Nomor_Hp
+
+		transaction.Nomor_Hp = replaced
 		transaction.Pembayaran = data.Pembayaran
 		transaction.Provider = data.Provider
 		transaction.CreatedAt = data.CreatedAt
 		transaction.Buyer_Sku_Code = data.Buyer_Sku_Code
-		transaction.Invoice_Number = data.Invoice_Number
 		transaction.Status_Pengisian = data.Status_Pengisian
 		transaction.Kode_Unik = data.Kode_Unik
 		transaction.Total = data.Total
+		transaction.Serial_Number = data.Serial_Number
 		transactions = append(transactions, transaction)
 	}
 
 	return &transactions, nil
+}
+
+func (service *TransactionService) GetTransactionByID(req string) (*models.Transaction, error) {
+	var (
+		transaction models.Transaction
+	)
+	ID, err := strconv.Atoi(req)
+	if err != nil {
+		logrus.Error("error [services][logics][transaction][strconv Atoi] ", err)
+		return nil, errors.New(constants.UserNotFoundErr)
+	}
+
+	transactionData, err := service.transactionRepository.GetTransactionByID(ID)
+	if err != nil {
+		logrus.Error("error [services][logics][transaction][GetTransactionByID] ", err)
+		return nil, errors.New(constants.UserNotFoundErr)
+	}
+
+	original := transactionData.Nomor_Hp
+	replacement := "XXX"
+	startIndex := len(original) - 3
+	endIndex := len(original)
+	replaced := strings.Replace(original, original[startIndex:endIndex], replacement, 1)
+
+	transaction.ID = int(transactionData.ID)
+	transaction.JenisLayanan = transactionData.JenisLayanan
+	transaction.Provider = transactionData.Provider
+	transaction.ID_Pelanggan = transactionData.Id_Pelanggan
+	transaction.CreatedAt = transactionData.CreatedAt
+	transaction.Kode_Unik = transactionData.Kode_Unik
+	transaction.Nomor_Hp = replaced
+	transaction.Pembayaran = transactionData.Pembayaran
+	transaction.Status = transactionData.Status
+	transaction.Nominal = transactionData.Nominal
+	transaction.Status_Pengisian = transactionData.Status_Pengisian
+	transaction.Total = transactionData.Total
+	transaction.Serial_Number = transactionData.Serial_Number
+
+	return &transaction, nil
 }

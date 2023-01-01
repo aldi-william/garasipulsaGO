@@ -34,6 +34,7 @@ func baseRouter(c *controllerRoutes) {
 		transaction.POST("/postTransaction", middlewares.RateIPLimiter(), c.transactionControllers.PostTransaction)
 		// transaction.GET("/ws", c.transactionControllers.GetWebsocket)
 		transaction.GET("/getTransaction", c.transactionControllers.GetTransaction)
+		transaction.GET("/getTransactionByID/:id", c.transactionControllers.GetTransactionByID)
 	}
 	payment := router.Group(PaymentRoute)
 	{
@@ -43,9 +44,11 @@ func baseRouter(c *controllerRoutes) {
 		whitelistfromMoota["202.80.219.52"] = true
 		whitelistfromMoota["::1"] = true
 		whitelistfromDigiflazz["52.74.250.133"] = true
+		whitelistfromDigiflazz["202.80.219.52"] = true
+		whitelistfromDigiflazz["::1"] = true
 
 		payment.POST("/callback", middlewares.IPWhiteList(whitelistfromMoota), c.paymentControllers.CallBackFromMoota)
-		payment.POST("/callbackfromdigiflazz", middlewares.IPWhiteList(whitelistfromDigiflazz), c.paymentControllers.CallBackFromDigiFlazz)
+		payment.POST("/callbackfromdigiflazz", middlewares.IPWhiteList(whitelistfromDigiflazz), middlewares.X_HUB_Signature(), c.paymentControllers.CallBackFromDigiFlazz)
 	}
 
 	if gin.Mode() == gin.DebugMode {

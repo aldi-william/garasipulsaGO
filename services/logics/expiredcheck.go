@@ -1,7 +1,6 @@
 package logics
 
 import (
-	"errors"
 	"time"
 	"user/domains/entities"
 	"user/utils"
@@ -9,15 +8,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (service *TransactionService) CheckExpiredStatus(expiredTime time.Time, TransactionToDBValid *entities.Transactions) (string, error) {
+func (service *TransactionService) CheckExpiredStatus(expiredTime time.Time, TransactionToDBValid *entities.Transactions) {
 	Trans := &entities.Transactions{}
+
+	// Buat timer dengan delay selama 15 menit
+	timer := time.NewTimer(16 * time.Minute)
+
+	// Tunggu hingga timer selesai
+	<-timer.C
+
 	// Memeriksa apakah waktu kadaluwarsa sudah terlewati dan statusnya masih Tunggu
 	if time.Now().After(expiredTime) {
 		TransactionToDBSecond, err := service.transactionRepository.GetTransactionByInvoice(TransactionToDBValid.Invoice_Number)
 		if err != nil {
 			utils.PrintLog("error [services][logics][transaction][CheckExpiredStatus] ", err)
 			logrus.Error("error [services][logics][transaction][CheckExpiredStatus] ", err)
-			return "", errors.New("data invoice number tidak ditemukan")
 		}
 		// Jika pengecekan data Status masih Tunggu Maka Update Transaction Invoice Number Menjadi Expired
 		if TransactionToDBSecond.Status == "Tunggu" {
@@ -28,11 +33,8 @@ func (service *TransactionService) CheckExpiredStatus(expiredTime time.Time, Tra
 			if err != nil {
 				utils.PrintLog("error [services][logics][transaction][CheckExpiredStatus] ", err)
 				logrus.Error("error [services][logics][transaction][CheckExpiredStatus] ", err)
-				return "", errors.New("data invoice number tidak ditemukan")
 			}
-			return "Expired", nil
 		}
 
 	}
-	return "Tunggu", nil
 }
