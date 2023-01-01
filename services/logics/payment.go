@@ -144,7 +144,7 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 				} else if res.Data.Response_Code == "99" {
 					transaction.Status = "Proses"
 				} else {
-					transaction.Status = "Refund"
+					transaction.Status = "Gagal"
 				}
 
 				transaction.Invoice_Number = res.Data.Ref_ID
@@ -182,7 +182,7 @@ func (service *PaymentService) CallBackFromDigiflazz(req models.DigiFlazzData) (
 	} else if req.Data.Response_Code == "99" {
 		transaction.Status = "Proses"
 	} else {
-		transaction.Status = "Refund"
+		transaction.Status = "Gagal"
 	}
 
 	transaction.Invoice_Number = req.Data.Ref_ID

@@ -12,7 +12,7 @@ func (service *TransactionService) CheckExpiredStatus(expiredTime time.Time, Tra
 	Trans := &entities.Transactions{}
 
 	// Buat timer dengan delay selama 15 menit
-	timer := time.NewTimer(16 * time.Minute)
+	timer := time.NewTimer(11 * time.Minute)
 
 	// Tunggu hingga timer selesai
 	<-timer.C

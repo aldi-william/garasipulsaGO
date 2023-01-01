@@ -79,7 +79,7 @@ func (service *TransactionService) CreateTransaction(req models.Transaction) (*m
 		return nil, errors.New(constants.TransactionNotCreatedErr)
 	}
 
-	expiredTime := transDataFirst.CreatedAt.Add(15 * time.Minute)
+	expiredTime := transDataFirst.CreatedAt.Add(10 * time.Minute)
 
 	go service.CheckExpiredStatus(expiredTime, transDataFirst)
 
