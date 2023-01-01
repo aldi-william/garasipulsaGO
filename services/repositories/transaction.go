@@ -52,7 +52,7 @@ func (transactionRepo *TransactionRepository) CreateTransaction(req *entities.Tr
 }
 
 func (transactionRepo *TransactionRepository) GetTransaction(req []entities.Transactions) ([]entities.Transactions, error) {
-	err := transactionRepo.connORM.Limit(10).Order("created_at desc").Find(&req).Error
+	err := transactionRepo.connORM.Limit(20).Order("created_at desc").Find(&req).Error
 	if err != nil {
 		utils.PrintLog("error [services][repositories][transaction][gorm get] ", err)
 		logrus.Error("error [services][repositories][transaction][gorm get] ", err)
