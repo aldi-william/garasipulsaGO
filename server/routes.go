@@ -1,6 +1,7 @@
 package server
 
 import (
+	"net/http"
 	"user/middlewares"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ const (
 
 func baseRouter(c *controllerRoutes) {
 	m := melody.New()
+	m.Upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	router.GET("/ws", func(c *gin.Context) {
 		m.HandleRequest(c.Writer, c.Request)
 	})
