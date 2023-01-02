@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 	"user/domains/entities"
 	"user/domains/models"
@@ -68,7 +69,8 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 	}
 
 	for _, data := range req {
-		amount = append(amount, data.Amount)
+		intamount, _ := strconv.Atoi(data.Amount)
+		amount = append(amount, intamount)
 	}
 
 	date := time.Now()
