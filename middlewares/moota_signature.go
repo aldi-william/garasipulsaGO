@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"io/ioutil"
 	"net/http"
@@ -17,13 +17,11 @@ func Moota_Signature() gin.HandlerFunc {
 		Signature := c.GetHeader("signature")
 		post_data, _ := ioutil.ReadAll(c.Request.Body)
 		secret := os.Getenv("SECRET_TOKEN_MOOTA")
-		h := hmac.New(sha1.New, []byte(secret))
+		h := hmac.New(sha256.New, []byte(secret))
 		h.Write(post_data)
-		s := "sha1="
 		s2 := hex.EncodeToString(h.Sum(nil))
-		s3 := s + s2
-		utils.PrintLogSukses("x-hub-signature", s2)
-		if Signature != s3 {
+		utils.PrintLogSukses("signature from moota", s2)
+		if Signature != s2 {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"status":  http.StatusForbidden,
 				"message": "Permission denied",
