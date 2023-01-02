@@ -73,6 +73,8 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 		amount = append(amount, intamount)
 	}
 
+	utils.PrintLogSukses("Amount", amount)
+
 	date := time.Now()
 	format_date := date.Format("2006-01-02")
 
