@@ -27,10 +27,10 @@ func InitPaymentController(paymentLogic logics.IPaymentService) *PaymentControll
 
 func (paymentController *PaymentController) CallBackFromMoota(c *gin.Context) {
 	var req []models.MootaCallback
-	err := c.ShouldBindJSON(&req)
+	err := c.ShouldBind(&req)
 	if err != nil {
-		utils.PrintLog("error [controllers][CallBackFromMoota][BindJSON]", err)
-		logrus.Error("error [controllers][CallBackFromMoota][BindJSON] ", err)
+		utils.PrintLog("error [controllers][CallBackFromMoota][ShouldBind]", err)
+		logrus.Error("error [controllers][CallBackFromMoota][ShouldBind] ", err)
 		response := response.Response{}
 		response.Error(c, err.Error())
 		return
@@ -50,9 +50,9 @@ func (paymentController *PaymentController) CallBackFromMoota(c *gin.Context) {
 
 func (paymentController *PaymentController) CallBackFromDigiFlazz(c *gin.Context) {
 	var req models.DigiFlazzData
-	err := c.ShouldBindJSON(&req)
+	err := c.BindJSON(&req)
 	if err != nil {
-		utils.PrintLog("error [controllers][CallBackFromMoota][BindJSON]", err)
+		utils.PrintLog("error [controllers][CallBackFromMoota][BindJSON] ", err)
 		logrus.Error("error [controllers][CallBackFromMoota][BindJSON] ", err)
 		response := response.Response{}
 		response.Error(c, err.Error())
