@@ -43,7 +43,7 @@ func baseRouter(c *controllerRoutes) {
 		whitelistfromMoota := make(map[string]bool)
 		whitelistfromDigiflazz := make(map[string]bool)
 		whitelistfromMoota["128.199.173.138"] = false
-		whitelistfromMoota["103.236.201.178"] = true
+		whitelistfromMoota["103.15.226.52"] = true
 		whitelistfromMoota["202.80.219.52"] = false
 		whitelistfromMoota["::1"] = false
 		whitelistfromDigiflazz["52.74.250.133"] = true
