@@ -54,6 +54,9 @@ func (paymentController *PaymentController) CallBackFromDigiFlazz(c *gin.Context
 	if err != nil {
 		utils.PrintLog("error [controllers][CallBackFromMoota][BindJSON]", err)
 		logrus.Error("error [controllers][CallBackFromMoota][BindJSON] ", err)
+		response := response.Response{}
+		response.Error(c, err.Error())
+		return
 	}
 
 	res, err := paymentController.paymentLogic.CallBackFromDigiflazz(req)

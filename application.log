@@ -69,3 +69,7 @@ time="2023-01-01T12:16:08+07:00" level=info msg="error [controllers][transaction
 time="2023-01-01T12:20:37+07:00" level=info msg="error [controllers][transaction][BindJSON]  : json: cannot unmarshal number into Go struct field Transaction.id_pelanggan of type string"
 time="2023-01-01T12:20:44+07:00" level=info msg="error [controllers][transaction][BindJSON]  : json: cannot unmarshal number into Go struct field Transaction.id_pelanggan of type string"
 time="2023-01-01T13:13:22+07:00" level=info msg="success [services][logics][payment][getDataAllStatusTungguAndToday == Amount of all Mutasi]  : 21666"
+time="2023-01-02T17:11:13+07:00" level=info msg="error [controllers][CallBackFromMoota][BindJSON] : parsing time \"\\\"2023-01-02 16:58:39\\\"\" as \"\\\"2006-01-02T15:04:05Z07:00\\\"\": cannot parse \" 16:58:39\\\"\" as \"T\""
+time="2023-01-02T17:14:31+07:00" level=info msg="error [controllers][CallBackFromMoota][BindJSON] : parsing time \"\\\"2023-01-02 16:58:39\\\"\" as \"\\\"2006-01-02T15:04:05Z07:00\\\"\": cannot parse \" 16:58:39\\\"\" as \"T\""
+time="2023-01-02T17:15:03+07:00" level=info msg="error [controllers][CallBackFromMoota][BindJSON] : parsing time \"\\\"2023-01-02 16:58:39\\\"\" as \"\\\"2006-01-02T15:04:05Z07:00\\\"\": cannot parse \" 16:58:39\\\"\" as \"T\""
+time="2023-01-02T17:17:33+07:00" level=info msg="error [controllers][CallBackFromMoota][BindJSON] : json: cannot unmarshal number into Go struct field MootaCallback.account_number of type string"
