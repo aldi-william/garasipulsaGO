@@ -28,3 +28,5 @@
 vendor..***
 .env
 local.env
+application.log
+callback.log

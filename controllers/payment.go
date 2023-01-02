@@ -27,7 +27,7 @@ func InitPaymentController(paymentLogic logics.IPaymentService) *PaymentControll
 
 func (paymentController *PaymentController) CallBackFromMoota(c *gin.Context) {
 	var req []models.MootaCallback
-	err := c.BindJSON(&req)
+	err := c.Bind(&req)
 	if err != nil {
 		utils.PrintLog("error [controllers][CallBackFromMoota][BindJSON]", err)
 		logrus.Error("error [controllers][CallBackFromMoota][BindJSON] ", err)
