@@ -51,7 +51,7 @@ func baseRouter(c *controllerRoutes) {
 		whitelistfromDigiflazz["202.80.219.52"] = false
 		whitelistfromDigiflazz["::1"] = false
 
-		payment.POST("/callback", middlewares.Moota_Signature(), c.paymentControllers.CallBackFromMoota)
+		payment.POST("/callback", c.paymentControllers.CallBackFromMoota)
 		payment.POST("/callbackfromdigiflazz", middlewares.IPWhiteList(whitelistfromDigiflazz), middlewares.X_HUB_Signature(), c.paymentControllers.CallBackFromDigiFlazz)
 	}
 

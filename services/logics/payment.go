@@ -47,11 +47,11 @@ func InitPaymentService(paymentRepo repositories.IPaymentRepository, transaction
 
 func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*models.ResultDigiFlazzData, error) {
 
-	for _, data := range req {
-		if data.Token != os.Getenv("SECRET_TOKEN") {
-			return nil, errors.New("permission denied")
-		}
-	}
+	// for _, data := range req {
+	// 	if data.Token != os.Getenv("SECRET_TOKEN_MOOTA") {
+	// 		return nil, errors.New("permission denied")
+	// 	}
+	// }
 
 	var (
 		amount           = []int{}
