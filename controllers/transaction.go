@@ -28,7 +28,7 @@ func InitTransactionController(transactionLogic logics.ITransactionService) *Tra
 
 func (transactionController *TransactionController) PostTransaction(c *gin.Context) {
 	var req models.Transaction
-	err := c.BindJSON(&req)
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		utils.PrintLog("error [controllers][transaction][BindJSON] ", err)
 		logrus.Error("error [controllers][transaction][BindJSON] ", err)
