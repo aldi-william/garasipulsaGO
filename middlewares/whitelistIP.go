@@ -11,7 +11,7 @@ func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
 		if !whitelist[c.ClientIP()] {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"status":  http.StatusForbidden,
-				"message": c.ClientIP(),
+				"message": "Your IP Address is not allowed to connect our restfull api",
 			})
 			return
 		}
