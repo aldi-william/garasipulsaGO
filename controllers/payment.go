@@ -7,6 +7,7 @@ import (
 	"user/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,7 +28,7 @@ func InitPaymentController(paymentLogic logics.IPaymentService) *PaymentControll
 
 func (paymentController *PaymentController) CallBackFromMoota(c *gin.Context) {
 	var req []models.MootaCallback
-	err := c.Bind(&req)
+	err := c.ShouldBindBodyWith(&req, binding.JSON)
 	if err != nil {
 		utils.PrintLog("error [controllers][CallBackFromMoota][BindJSON]", err)
 		logrus.Error("error [controllers][CallBackFromMoota][BindJSON] ", err)
