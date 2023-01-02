@@ -4,7 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"user/utils"
@@ -15,10 +15,11 @@ import (
 func Moota_Signature() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		Signature := c.GetHeader("signature")
-		post_data := fmt.Sprintf("%s", c.Request.Body)
+		post_data, _ := io.ReadAll(c.Request.Body)
+		defer c.Request.Body.Close()
 		secret := os.Getenv("SECRET_TOKEN_MOOTA")
 		h := hmac.New(sha256.New, []byte(secret))
-		h.Write([]byte(post_data))
+		h.Write(post_data)
 		s2 := hex.EncodeToString(h.Sum(nil))
 		utils.PrintLogSukses("signature from moota", s2)
 		if Signature != s2 {
