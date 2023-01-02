@@ -15,8 +15,8 @@ import (
 func Moota_Signature() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		Signature := c.GetHeader("signature")
-		post_data, _ := io.ReadAll(c.Request.Body)
-		defer c.Request.Body.Close()
+		RequestBody := c.Request.Body
+		post_data, _ := io.ReadAll(RequestBody)
 		secret := os.Getenv("SECRET_TOKEN_MOOTA")
 		h := hmac.New(sha256.New, []byte(secret))
 		h.Write(post_data)
