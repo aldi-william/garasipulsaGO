@@ -111,15 +111,13 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 				pass := fmt.Sprintf("%x", sign)
 				jsonData.Sign = pass
 				jsonData.Testing = Testing
-
-				fmt.Println(jsonData)
 				result, err := utils.CallAPI(http.MethodPost, os.Getenv("URL_BELI_PULSA"), &jsonData, nil, nil)
 
 				if err != nil {
 					utils.PrintLog("error [services][logics][payment][CallAPI] ", err)
 					logrus.Error("error [services][logics][payment][CallAPI] ", err)
 				}
-				fmt.Println(result.Body)
+				utils.PrintLogSukses("SUCCESS [service][logics][payment][CallAPI]", result.Body)
 				defer result.Body.Close()
 				bytes, err := io.ReadAll(result.Body)
 				if err != nil {
@@ -131,6 +129,8 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 					utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
 					logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
 				}
+
+				utils.PrintLogSukses("SUCCESS [services][logics][Unmarshal Looping CallAPI] ", res)
 
 				if res.Data.Response_Code == "00" {
 					transaction.Status = "Sukses"
@@ -148,7 +148,7 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 				}
 
 				transaction.Invoice_Number = res.Data.Ref_ID
-
+				utils.PrintLogSukses("SUCCESS [services][logics][transaction Status]", transaction)
 				err = service.transactionRepository.UpdateTransactionByInvoiceNumber(&transaction)
 				if err != nil {
 					utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
