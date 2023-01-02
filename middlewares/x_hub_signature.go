@@ -3,7 +3,7 @@ package middlewares
 import (
 	"crypto/hmac"
 	"crypto/sha1"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"user/utils"
@@ -16,7 +16,7 @@ import (
 func X_HUB_Signature() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		Signature := c.GetHeader("X-Hub-Signature")
-		post_data, _ := ioutil.ReadAll(c.Request.Body)
+		post_data, _ := io.ReadAll(c.Request.Body)
 		secret := os.Getenv("SECRET_DIGIFLAZZ")
 		h := hmac.New(sha1.New, []byte(secret))
 		h.Write(post_data)
