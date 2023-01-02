@@ -45,7 +45,7 @@ func baseRouter(c *controllerRoutes) {
 		whitelistfromMoota["128.199.173.138"] = false
 		whitelistfromMoota["103.236.201.178"] = true
 		whitelistfromMoota["103.15.226.52"] = true
-		whitelistfromMoota["202.80.219.52"] = true
+		whitelistfromMoota["202.80.218.200"] = true
 		whitelistfromMoota["::1"] = false
 		whitelistfromDigiflazz["52.74.250.133"] = true
 		whitelistfromDigiflazz["202.80.219.52"] = false
