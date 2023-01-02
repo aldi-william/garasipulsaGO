@@ -15,5 +15,6 @@ func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
 			})
 			return
 		}
+		c.Next()
 	}
 }
