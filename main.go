@@ -1,6 +1,8 @@
 package main
 
-import "user/config"
+import (
+	"user/config"
+)
 
 func main() {
 	config.StartApp()

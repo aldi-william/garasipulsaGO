@@ -19,7 +19,8 @@ type UserRepository struct {
 type IUserRepository interface {
 	SetConnection(connORM *gorm.DB)
 	GetUserByID(id uint) (*entities.User, error)
-	CreateUser(req models.User) (*entities.User, error)
+	CreateUser(req models.Users) (*entities.Users, error)
+	FindUserByEmail(email string) (*entities.Users, error)
 }
 
 func InitUserRepository(connORM *gorm.DB, connDB *sql.DB) *UserRepository {
@@ -52,13 +53,27 @@ func (repo *UserRepository) GetUserByID(id uint) (*entities.User, error) {
 	return result, nil
 }
 
-func (repo *UserRepository) CreateUser(req models.User) (*entities.User, error) {
-	var result *entities.User
-	err := repo.connORM.Table("USER").Create(&req).Error
+func (repo *UserRepository) CreateUser(req models.Users) (*entities.Users, error) {
+	user := entities.Users{
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: req.Password,
+		Role:     req.Role,
+	}
+	err := repo.connORM.Create(&user).Error
 	if err != nil {
 		logrus.Error("error [services][repositories][user][gorm create] ", err)
 		return nil, err
 	}
+	return &user, nil
+}
 
-	return result, nil
+func (repo *UserRepository) FindUserByEmail(email string) (*entities.Users, error) {
+	var user entities.Users
+	err := repo.connORM.Where("email = ?", email).Find(&user).Error
+	if err != nil {
+		logrus.Error("error [services][repositories][user][gorm FindUserByEmail] ", err)
+		return nil, err
+	}
+	return &user, nil
 }

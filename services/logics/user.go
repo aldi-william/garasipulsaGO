@@ -8,17 +8,20 @@ import (
 	"net/http"
 	"os"
 	"user/constants"
+	"user/domains/entities"
 	"user/domains/models"
 	"user/services/repositories"
 	"user/utils"
 
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type IUserService interface {
 	GetUserByID(id uint) (*models.User, error)
-	CreateUser(req models.User) (*models.User, error)
 	GetArticles(id string) (*models.Articles, error)
+	GetLogin(req models.Users) (*models.Users, error)
+	RegisterUser(req models.Users) (*entities.Users, error)
 }
 
 type UserService struct {
@@ -54,22 +57,6 @@ func (service *UserService) GetUserByID(id uint) (*models.User, error) {
 	return user, nil
 }
 
-func (service *UserService) CreateUser(req models.User) (*models.User, error) {
-	var (
-		user *models.User
-	)
-
-	// fetch user data
-	userData, err := service.userRepository.CreateUser(req)
-	if err != nil {
-		logrus.Error("error [services][logics][user][CreateUser] ", err)
-		return nil, errors.New(constants.UserNotFoundErr)
-	}
-	_ = utils.AutoMap(userData, &user)
-
-	return user, nil
-}
-
 func (service *UserService) GetArticles(id string) (*models.Articles, error) {
 
 	var (
@@ -96,4 +83,59 @@ func (service *UserService) GetArticles(id string) (*models.Articles, error) {
 	}
 
 	return &articles, nil
+}
+
+func (service *UserService) GetLogin(req models.Users) (*models.Users, error) {
+
+	email := req.Email
+	password := req.Password
+
+	userByEmail, err := service.userRepository.FindUserByEmail(email)
+	if err != nil {
+		utils.PrintLog("error [services][logics][GetLogin][FindUserByEmail] ", err)
+		logrus.Error("error [services][logics][GetLogin][FindUSerByEmail] ", err)
+		return nil, errors.New(constants.UserNotFoundErr)
+	}
+	res := models.Users{}
+	res.ID = userByEmail.ID
+	res.Email = userByEmail.Email
+	res.Name = userByEmail.Name
+	res.Role = userByEmail.Role
+
+	token, err := utils.GenerateToken(res)
+
+	res.Token = token
+
+	if userByEmail.ID == 0 {
+		utils.PrintLog("error [services][logics][GetLogin][user not found] ", err)
+		logrus.Error("error [services][logics][GetLogin][user not found] ", err)
+		return &res, errors.New(constants.UserNotFoundErr)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(userByEmail.Password), []byte(password))
+	if err != nil {
+		utils.PrintLog("error [services][logics][GetLogin][CompareHashAndPassword] ", err)
+		logrus.Error("error [services][logics][GetLogin][CompareHashAndPassword] ", err)
+		return &res, err
+	}
+
+	return &res, nil
+}
+
+func (service *UserService) RegisterUser(req models.Users) (*entities.Users, error) {
+	user := models.Users{}
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.MinCost)
+	if err != nil {
+		return nil, errors.New(constants.FailedToGeneratePassword)
+	}
+	user.Name = req.Name
+	user.Email = req.Email
+	user.Password = string(passwordHash)
+	user.Role = "administrator"
+	newUser, err := service.userRepository.CreateUser(user)
+	if err != nil {
+		return nil, errors.New(constants.FailedToCreatePassword)
+	}
+	utils.PrintLogSukses("SUCCESS TO CREATE USER", newUser)
+	return nil, nil
 }

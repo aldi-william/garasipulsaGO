@@ -19,3 +19,9 @@ type Transaction struct {
 	ID_Pelanggan     string     `json:"id_pelanggan"`
 	Serial_Number    string     `json:"sn"`
 }
+
+type TransactionUpdate struct {
+	ID             int    `json:"id"`
+	Invoice_Number string `json:"invoice_number" binding:"required"`
+	Status         string `json:"status" binding:"required"`
+}

@@ -27,7 +27,9 @@ func baseRouter(c *controllerRoutes) {
 	auth := router.Group(ParentRoute).Use(middlewares.ErrorHandler)
 	{
 		auth.GET("health-check", c.healthControllers.Status)
-		auth.POST("/", c.userControllers.CreateUser)
+		// auth.POST("/", c.userControllers.CreateUser)
+		auth.POST("/login", c.userControllers.Login)
+		auth.POST("/register", c.userControllers.CreateUser)
 		auth.GET("/get-articles/:id", c.userControllers.GetArticle)
 	}
 
@@ -36,6 +38,8 @@ func baseRouter(c *controllerRoutes) {
 		transaction.POST("/postTransaction", middlewares.RateIPLimiter(), c.transactionControllers.PostTransaction)
 		// transaction.GET("/ws", c.transactionControllers.GetWebsocket)
 		transaction.GET("/getTransaction", c.transactionControllers.GetTransaction)
+		transaction.GET("/getTransactionByGagal", c.transactionControllers.GetTransactionByGagal)
+		transaction.POST("/putTransaction", middlewares.AuthMiddleware(), c.transactionControllers.PutTransactionByInvoice)
 		transaction.GET("/getTransactionByID/:id", c.transactionControllers.GetTransactionByID)
 	}
 	payment := router.Group(PaymentRoute)

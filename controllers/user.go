@@ -25,6 +25,28 @@ func InitUserController(userLogic logics.IUserService) *UserController {
 	return &controller
 }
 
+func (h UserController) Login(c *gin.Context) {
+	var req models.Users
+
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		logrus.Error("error [controllers][user][Login][ShouldBindJSON] ", err)
+		response := response.Response{}
+		response.Error(c, err.Error())
+		return
+	}
+	userData, err := h.userLogic.GetLogin(req)
+	if err != nil {
+		utils.PrintLog("error [controllers][user][Login][userData] ", err)
+		logrus.Error("error [controllers][user][Login][userData] ", err)
+		response := response.Response{}
+		response.Error(c, err.Error())
+	} else {
+		response := response.Response{Data: userData}
+		response.Success(c)
+	}
+}
+
 func (h UserController) GetUser(c *gin.Context) {
 	var (
 		request = utils.MapRequest(c, &models.BaseRequest{}, []string{"id"})
@@ -52,7 +74,7 @@ func (h UserController) GetUser(c *gin.Context) {
 // @Failure     400
 // @Router      / [post]
 func (h UserController) CreateUser(c *gin.Context) {
-	var req models.User
+	var req models.Users
 	err := c.BindJSON(&req)
 	if err != nil {
 		logrus.Error("error [controllers][user][BindJSON] ", err)
@@ -61,7 +83,7 @@ func (h UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	res, err := h.userLogic.CreateUser(req)
+	res, err := h.userLogic.RegisterUser(req)
 	if err != nil {
 		logrus.Error("error [controllers][user][CreateUser] ", err)
 		response := response.Response{}

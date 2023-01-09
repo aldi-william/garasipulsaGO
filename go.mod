@@ -4,11 +4,13 @@ go 1.18
 
 require (
 	github.com/devfeel/mapper v0.7.10
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/joho/godotenv v1.4.0
@@ -18,6 +20,7 @@ require (
 	github.com/swaggo/files v1.0.0
 	github.com/swaggo/gin-swagger v1.5.3
 	github.com/swaggo/swag v1.8.9
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65
 	gopkg.in/olahol/melody.v1 v1.0.0-20170518105555-d52139073376
 	gorm.io/driver/mysql v1.4.4
@@ -36,11 +39,7 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
-	github.com/go-redis/redis v6.15.5+incompatible // indirect
-	github.com/gobuffalo/here v0.6.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
-	github.com/gofrs/uuid v4.0.0+incompatible // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -49,22 +48,16 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/markbates/pkger v0.15.1 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/mcmathja/curlyq v0.4.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/tools v0.4.0 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220314164441-57ef72a4c106 // indirect
 	google.golang.org/grpc v1.51.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

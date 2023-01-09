@@ -6,6 +6,8 @@ const (
 	TransactionNotCreatedErr     = "transaction failed to created"
 	WebsocketFailedtoConnect     = "connection failed to connected"
 	WebsocketFailedtoSendMessage = "message failed to sended"
+	FailedToCreatePassword       = "password failed to created"
+	FailedToGeneratePassword     = "password failed to generated"
 
 	OK       = "OK"
 	Sec0     = 0

@@ -12,6 +12,7 @@ import (
 	"time"
 	"user/domains/entities"
 	"user/domains/models"
+	"user/onesender"
 	"user/services/repositories"
 	"user/utils"
 
@@ -47,13 +48,6 @@ func InitPaymentService(paymentRepo repositories.IPaymentRepository, transaction
 }
 
 func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*models.ResultDigiFlazzData, error) {
-
-	// for _, data := range req {
-	// 	if data.Token != os.Getenv("SECRET_TOKEN_MOOTA") {
-	// 		return nil, errors.New("permission denied")
-	// 	}
-	// }
-
 	var (
 		amount           = []int{}
 		res              = models.ResultDigiFlazzData{}
@@ -61,6 +55,9 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 		Testing          bool
 		transaction      = entities.Transactions{}
 	)
+
+	onesender.ApiUrl = os.Getenv("API_URL_ONESENDER")
+	onesender.ApiKey = os.Getenv("API_KEY_ONESENDER")
 	// menentukan mode development atau production
 	if MODE_DEVELOPMENT == "PRODUCTION" {
 		Testing = false
@@ -95,7 +92,7 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 	for _, getData := range *getDataAllStatusTungguAndToday {
 		for _, getDataAmount := range amount {
 			if getData.Total == getDataAmount {
-				utils.PrintLog("success [services][logics][payment][getDataAllStatusTungguAndToday == Amount of all Mutasi] ", getDataAmount)
+				utils.PrintLogSukses("success [services][logics][payment][getDataAllStatusTungguAndToday == Amount of all Mutasi] ", getDataAmount)
 				getData, err := service.transactionRepository.GetTransactionByTotal(getDataAmount)
 				if err != nil {
 					utils.PrintLog("error [services][logics][payment][gorm get transactional by total] ", err)
@@ -103,7 +100,8 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 					return nil, errors.New("data tidak ditemukan")
 				}
 				if getData.Id_Pelanggan != "" {
-					jsonData.Customer_NO = getData.Nomor_Hp
+					no_hp := fmt.Sprintf("0%s", getData.Nomor_Hp)
+					jsonData.Customer_NO = no_hp
 				} else {
 					jsonData.Customer_NO = getData.Id_Pelanggan
 				}
@@ -121,7 +119,6 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 					utils.PrintLog("error [services][logics][payment][CallAPI] ", err)
 					logrus.Error("error [services][logics][payment][CallAPI] ", err)
 				}
-				utils.PrintLogSukses("SUCCESS [service][logics][payment][CallAPI]", result.Body)
 				defer result.Body.Close()
 				bytes, err := io.ReadAll(result.Body)
 				if err != nil {
@@ -134,25 +131,35 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 					logrus.Error("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
 				}
 
-				utils.PrintLogSukses("SUCCESS [services][logics][Unmarshal Looping CallAPI] ", res)
-
 				if res.Data.Response_Code == "00" {
 					transaction.Status = "Sukses"
+					transaction.Status_Pengisian = "Sukses"
 					transaction.Serial_Number = res.Data.Serial_Number
+					msg := fmt.Sprintf("serial number anda adalah %s", transaction.Serial_Number)
+					onesender.SendTextMessage(res.Data.Customer_No, msg)
 				} else if res.Data.Response_Code == "01" {
-					transaction.Status = "Gagal"
+					transaction.Status = "Sukses"
+					transaction.Status_Pengisian = "Gagal"
+					transaction.Serial_Number = ""
 				} else if res.Data.Response_Code == "02" {
-					transaction.Status = "Gagal"
+					transaction.Status = "Sukses"
+					transaction.Status_Pengisian = "Gagal"
+					transaction.Serial_Number = ""
 				} else if res.Data.Response_Code == "03" {
-					transaction.Status = "Proses"
+					transaction.Status = "Sukses"
+					transaction.Status_Pengisian = "Proses"
+					transaction.Serial_Number = ""
 				} else if res.Data.Response_Code == "99" {
-					transaction.Status = "Proses"
+					transaction.Status = "Sukses"
+					transaction.Status_Pengisian = "Proses"
+					transaction.Serial_Number = ""
 				} else {
-					transaction.Status = "Gagal"
+					transaction.Status = "Sukses"
+					transaction.Status_Pengisian = "Gagal"
+					transaction.Serial_Number = ""
 				}
 
 				transaction.Invoice_Number = res.Data.Ref_ID
-				utils.PrintLogSukses("SUCCESS [services][logics][transaction Status]", transaction)
 				err = service.transactionRepository.UpdateTransactionByInvoiceNumber(&transaction)
 				if err != nil {
 					utils.PrintLog("error [services][logics][payment][Unmarshal Looping CallAPI] ", err)
@@ -165,7 +172,6 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 
 	}
 
-	utils.PrintLogSukses("SUCCESS [services][logics][payment][CALLAPI] ", res)
 	return nil, nil
 }
 
@@ -176,17 +182,28 @@ func (service *PaymentService) CallBackFromDigiflazz(req models.DigiFlazzData) (
 
 	if req.Data.Response_Code == "00" {
 		transaction.Status = "Sukses"
+		transaction.Status_Pengisian = "Sukses"
 		transaction.Serial_Number = req.Data.Serial_Number
 	} else if req.Data.Response_Code == "01" {
-		transaction.Status = "Gagal"
+		transaction.Status = "Sukses"
+		transaction.Status_Pengisian = "Gagal"
+		transaction.Serial_Number = ""
 	} else if req.Data.Response_Code == "02" {
-		transaction.Status = "Gagal"
+		transaction.Status = "Sukses"
+		transaction.Status_Pengisian = "Gagal"
+		transaction.Serial_Number = ""
 	} else if req.Data.Response_Code == "03" {
-		transaction.Status = "Proses"
+		transaction.Status = "Sukses"
+		transaction.Status_Pengisian = "Proses"
+		transaction.Serial_Number = ""
 	} else if req.Data.Response_Code == "99" {
-		transaction.Status = "Proses"
+		transaction.Status = "Sukses"
+		transaction.Status_Pengisian = "Proses"
+		transaction.Serial_Number = ""
 	} else {
-		transaction.Status = "Gagal"
+		transaction.Status = "Sukses"
+		transaction.Status_Pengisian = "Gagal"
+		transaction.Serial_Number = ""
 	}
 
 	transaction.Invoice_Number = req.Data.Ref_ID

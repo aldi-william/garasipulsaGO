@@ -1,12 +1,12 @@
 package middlewares
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"io"
 	"net/http"
 	"os"
-	"user/utils"
 
 	"encoding/hex"
 
@@ -20,10 +20,10 @@ func X_HUB_Signature() gin.HandlerFunc {
 		secret := os.Getenv("SECRET_DIGIFLAZZ")
 		h := hmac.New(sha1.New, []byte(secret))
 		h.Write(post_data)
+		c.Request.Body = io.NopCloser(bytes.NewReader(post_data))
 		s := "sha1="
 		s2 := hex.EncodeToString(h.Sum(nil))
 		s3 := s + s2
-		utils.PrintLogSukses("x-hub-signature", s2)
 		if Signature != s3 {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"status":  http.StatusForbidden,

@@ -21,11 +21,12 @@ import (
 )
 
 type ITransactionService interface {
-	// CreateTransaction(req models.Transaction) (*models.ResultToBuyer, error)
+	PutTransaction(req models.TransactionUpdate) (string, error)
 	CreateTransaction(req models.Transaction) (*models.ResultToBuyer, error)
 	GetWebsocket(ctx *gin.Context)
 	GetMelody(ctx *gin.Context)
 	GetTransaction(req []entities.Transactions) (*[]models.Transaction, error)
+	GetTransactionByGagal(req []entities.Transactions) (*[]models.Transaction, error)
 	GetTransactionByID(req string) (*models.Transaction, error)
 }
 
@@ -180,6 +181,47 @@ func (service *TransactionService) GetTransaction(req []entities.Transactions) (
 	return &transactions, nil
 }
 
+func (service *TransactionService) GetTransactionByGagal(req []entities.Transactions) (*[]models.Transaction, error) {
+
+	var (
+		transactions []models.Transaction
+		transaction  models.Transaction
+	)
+
+	transactionData, err := service.transactionRepository.GetTransactionByGagal(req)
+	if err != nil {
+		logrus.Error("error [services][logics][transaction][GetTransactionByGagal] ", err)
+		return nil, errors.New(constants.UserNotFoundErr)
+	}
+
+	for _, data := range transactionData {
+		original := data.Nomor_Hp
+		replacement := "XXX"
+		startIndex := len(original) - 3
+		endIndex := len(original)
+		replaced := strings.Replace(original, original[startIndex:endIndex], replacement, 1)
+
+		transaction.ID = int(data.ID)
+		transaction.Status = data.Status
+		transaction.JenisLayanan = data.JenisLayanan
+		transaction.Nominal = data.Nominal
+
+		transaction.Nomor_Hp = replaced
+		transaction.Pembayaran = data.Pembayaran
+		transaction.Provider = data.Provider
+		transaction.CreatedAt = data.CreatedAt
+		transaction.Buyer_Sku_Code = data.Buyer_Sku_Code
+		transaction.Status_Pengisian = data.Status_Pengisian
+		transaction.Kode_Unik = data.Kode_Unik
+		transaction.Total = data.Total
+		transaction.Invoice_Number = data.Invoice_Number
+		transaction.Serial_Number = data.Serial_Number
+		transactions = append(transactions, transaction)
+	}
+
+	return &transactions, nil
+}
+
 func (service *TransactionService) GetTransactionByID(req string) (*models.Transaction, error) {
 	var (
 		transaction models.Transaction
@@ -217,4 +259,21 @@ func (service *TransactionService) GetTransactionByID(req string) (*models.Trans
 	transaction.Serial_Number = transactionData.Serial_Number
 
 	return &transaction, nil
+}
+
+func (service *TransactionService) PutTransaction(req models.TransactionUpdate) (string, error) {
+
+	TransactionToDB := entities.Transactions{}
+
+	TransactionToDB.Invoice_Number = req.Invoice_Number
+	TransactionToDB.Status = req.Status
+
+	res, err := service.transactionRepository.PutTransaction(&TransactionToDB)
+	if err != nil {
+		utils.PrintLog("error [services][logics][transaction][PutTransaction] ", err)
+		logrus.Error("error [services][logics][transaction][PutTransaction] ", err)
+		return res, err
+	}
+
+	return res, nil
 }
