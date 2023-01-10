@@ -29,7 +29,7 @@ func baseRouter(c *controllerRoutes) {
 		auth.GET("health-check", c.healthControllers.Status)
 		// auth.POST("/", c.userControllers.CreateUser)
 		auth.POST("/login", c.userControllers.Login)
-		auth.POST("/register", c.userControllers.CreateUser)
+		// auth.POST("/register", c.userControllers.CreateUser)
 		auth.GET("/get-articles/:id", c.userControllers.GetArticle)
 	}
 
