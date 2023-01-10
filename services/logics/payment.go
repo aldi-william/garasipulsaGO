@@ -146,11 +146,11 @@ func (service *PaymentService) CallBackFromMoota(req []models.MootaCallback) (*m
 					transaction.Status_Pengisian = "Gagal"
 					transaction.Serial_Number = ""
 				} else if res.Data.Response_Code == "03" {
-					transaction.Status = "Sukses"
+					transaction.Status = "Proses"
 					transaction.Status_Pengisian = "Proses"
 					transaction.Serial_Number = ""
 				} else if res.Data.Response_Code == "99" {
-					transaction.Status = "Sukses"
+					transaction.Status = "Proses"
 					transaction.Status_Pengisian = "Proses"
 					transaction.Serial_Number = ""
 				} else {
@@ -193,11 +193,11 @@ func (service *PaymentService) CallBackFromDigiflazz(req models.DigiFlazzData) (
 		transaction.Status_Pengisian = "Gagal"
 		transaction.Serial_Number = ""
 	} else if req.Data.Response_Code == "03" {
-		transaction.Status = "Sukses"
+		transaction.Status = "Proses"
 		transaction.Status_Pengisian = "Proses"
 		transaction.Serial_Number = ""
 	} else if req.Data.Response_Code == "99" {
-		transaction.Status = "Sukses"
+		transaction.Status = "Proses"
 		transaction.Status_Pengisian = "Proses"
 		transaction.Serial_Number = ""
 	} else {
