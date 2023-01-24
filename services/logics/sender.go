@@ -1,6 +1,9 @@
 package logics
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"user/domains/models"
@@ -36,7 +39,6 @@ func (service *SenderService) GetSender(req models.Sender) {
 	onesender.ApiUrl = os.Getenv("API_URL_ONESENDER")
 	onesender.ApiKey = os.Getenv("API_KEY_ONESENDER")
 	// onesender.SendTextMessage(req.Sender_Phone, "testing2")
-	url := os.Getenv("BASE_URL_API_ONESENDER")
 	jsonData := models.APISenderWithButton{}
 	jsonData.Recipient_type = "individual"
 	jsonData.To = req.Sender_Phone
@@ -65,13 +67,26 @@ func (service *SenderService) GetSender(req models.Sender) {
 	button3.Reply.Title = "Rp 100.000,-"
 	jsonData.Interactive.Action.Buttons = append(jsonData.Interactive.Action.Buttons, button3)
 
+	bearer := fmt.Sprintf("Bearer %s", os.Getenv("API_KEY_ONESENDER"))
 	headers := map[string]string{
-		"Authorization": os.Getenv("API_KEY_ONESENDER"),
+		"Authorization": bearer,
 	}
-	result, err := utils.CallAPI(http.MethodPost, url, &jsonData, headers, nil)
+	result, err := utils.CallAPI(http.MethodPost, os.Getenv("API_URL_ONESENDER"), &jsonData, headers, nil)
 	if err != nil {
 		utils.PrintLog("error [services][logics][sender][CallAPI] ", err)
 		logrus.Error("error [services][logics][sender][CallAPI] ", err)
 	}
 	defer result.Body.Close()
+	bytes, err := io.ReadAll(result.Body)
+	if err != nil {
+		utils.PrintLog("error [services][logics][sender][ReadAll Looping CallAPI] ", err)
+		logrus.Error("error [services][logics][sender][ReadAll Looping CallAPI] ", err)
+	}
+	res := models.APIReceiver{}
+	err = json.Unmarshal(bytes, &res)
+	if err != nil {
+		utils.PrintLog("error [services][logics][sender][ReadAll Looping CallAPI] ", err)
+		logrus.Error("error [services][logics][sender][ReadAll Looping CallAPI] ", err)
+	}
+	fmt.Println(res)
 }

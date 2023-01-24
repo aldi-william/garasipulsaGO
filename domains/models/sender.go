@@ -35,3 +35,15 @@ type Button struct {
 		Title string `json:"Title"`
 	} `json:"reply"`
 }
+
+type APIReceiver struct {
+	Code              string            `json:"code"`
+	Receiver_Messages []Receive_Message `json:"messages"`
+}
+
+type Receive_Message struct {
+	ID             string `json:"id"`
+	Type           string `json:"type"`
+	To             string `json:"to"`
+	Receipent_Type string `json:"receipent_type"`
+}

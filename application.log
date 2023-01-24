@@ -26,3 +26,6 @@ time="2023-01-06T12:30:54+07:00" level=info msg="error [services][logics][GetLog
 time="2023-01-06T12:30:54+07:00" level=info msg="error [controllers][user][Login][userData]  : crypto/bcrypt: hashedPassword is not the hash of the given password"
 time="2023-01-07T18:40:55+07:00" level=info msg="error [services][logics][GetLogin][CompareHashAndPassword]  : crypto/bcrypt: hashedPassword is not the hash of the given password"
 time="2023-01-07T18:40:55+07:00" level=info msg="error [controllers][user][Login][userData]  : crypto/bcrypt: hashedPassword is not the hash of the given password"
+time="2023-01-24T16:53:23+07:00" level=info msg="error [services][logics][payment][ReadAll Looping CallAPI]  : invalid character 'M' looking for beginning of value"
+time="2023-01-24T16:53:36+07:00" level=info msg="error [services][logics][payment][ReadAll Looping CallAPI]  : invalid character 'M' looking for beginning of value"
+time="2023-01-24T17:07:06+07:00" level=info msg="error [services][logics][sender][ReadAll Looping CallAPI]  : json: cannot unmarshal number into Go struct field APIReceiver.code of type string"
