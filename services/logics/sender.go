@@ -1,6 +1,7 @@
 package logics
 
 import (
+	"os"
 	"user/domains/models"
 	"user/onesender"
 	"user/services/repositories"
@@ -29,5 +30,7 @@ func InitSenderService(userRepo repositories.IUserRepository) *SenderService {
 }
 
 func (service *SenderService) GetSender(req models.Sender) {
-	onesender.SendTextMessage(req.Sender_Phone, "testing")
+	onesender.ApiUrl = os.Getenv("API_URL_ONESENDER")
+	onesender.ApiKey = os.Getenv("API_KEY_ONESENDER")
+	onesender.SendTextMessage(req.Sender_Phone, "testing2")
 }

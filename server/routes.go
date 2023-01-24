@@ -34,7 +34,7 @@ func baseRouter(c *controllerRoutes) {
 
 	send := router.Group(SenderRoute)
 	{
-		send.POST("/callbackonesender", c.senderControllers.GetSender)
+		send.POST("/callbackonesender", middlewares.OnesenderHeader(), c.senderControllers.GetSender)
 	}
 
 	// transaction := router.Group(TransactionRoute).Use(middlewares.ErrorHandler)
