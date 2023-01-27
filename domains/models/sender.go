@@ -23,7 +23,9 @@ type APISenderWithButton struct {
 			Text string `json:"text"`
 		} `json:"footer"`
 		Action struct {
-			Buttons []Button `json:"buttons"`
+			Buttons  []Button  `json:"buttons"`
+			Button   string    `json:"button"`
+			Sections []Section `json:"sections"`
 		}
 	}
 }
@@ -36,8 +38,19 @@ type Button struct {
 	} `json:"reply"`
 }
 
+type Section struct {
+	Title string `json:"title"`
+	Rows  []Row  `json:"rows"`
+}
+
+type Row struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
 type APIReceiver struct {
-	Code              string            `json:"code"`
+	Code              int               `json:"code"`
 	Receiver_Messages []Receive_Message `json:"messages"`
 }
 
@@ -46,4 +59,13 @@ type Receive_Message struct {
 	Type           string `json:"type"`
 	To             string `json:"to"`
 	Receipent_Type string `json:"receipent_type"`
+}
+
+type SenderToWa struct {
+	Recipient_Type string `json:"recipient_type"`
+	To             string `json:"to"`
+	Type           string `json:"type"`
+	Text           struct {
+		Body string `json:"body"`
+	} `json:"text"`
 }
