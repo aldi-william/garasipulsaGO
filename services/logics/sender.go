@@ -56,13 +56,13 @@ func (service *SenderService) GetSender(req models.Sender) {
 		button := models.Button{}
 		button.Type = "button"
 		button.Reply.ID = "prabayar"
-		button.Reply.Title = "Pra bayar"
+		button.Reply.Title = "/prabayar"
 		jsonData.Interactive.Action.Buttons = append(jsonData.Interactive.Action.Buttons, button)
 		// button 2
 		button2 := models.Button{}
 		button2.Type = "button"
 		button2.Reply.ID = "paskabayar"
-		button2.Reply.Title = "Paska Bayar"
+		button2.Reply.Title = "/paskaBayar"
 		jsonData.Interactive.Action.Buttons = append(jsonData.Interactive.Action.Buttons, button2)
 
 		bearer := fmt.Sprintf("Bearer %s", os.Getenv("API_KEY_ONESENDER"))
